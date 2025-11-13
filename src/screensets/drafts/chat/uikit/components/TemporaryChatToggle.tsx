@@ -10,14 +10,16 @@ export interface TemporaryChatToggleProps {
   onChange: (value: boolean) => void;
   disabled?: boolean;
   className?: string;
+  children?: React.ReactNode;
 }
 
-export const TemporaryChatToggle = ({
+export const TemporaryChatToggle: React.FC<TemporaryChatToggleProps> = ({
   value,
   onChange,
   disabled = false,
   className = '',
-}: TemporaryChatToggleProps) => {
+  children,
+}) => {
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <Switch
@@ -26,12 +28,14 @@ export const TemporaryChatToggle = ({
         onCheckedChange={onChange}
         disabled={disabled}
       />
-      <label
-        htmlFor="temporary-chat"
-        className="text-sm font-medium text-muted-foreground cursor-pointer"
-      >
-        Temporary Chat
-      </label>
+      {children && (
+        <label
+          htmlFor="temporary-chat"
+          className="text-sm font-medium text-muted-foreground cursor-pointer"
+        >
+          {children}
+        </label>
+      )}
     </div>
   );
 };

@@ -1,0 +1,63 @@
+{
+  "title": "Chat",
+  "description": "Full-featured chat interface with threads and messages",
+  "screens": {
+    "chat": {
+      "title": "Chat",
+      "recent_chats": "Chats Recentes",
+      "new_chat": "Novo Chat",
+      "search_chats": "Procurar chats...",
+      "no_chats": "Nenhum chat",
+      "just_now": "Agora",
+      "edit_title": "Editar título",
+      "delete_chat": "Eliminar chat",
+      "save": "Guardar",
+      "cancel": "Cancelar",
+      "no_messages": "Nenhuma mensagem",
+      "no_messages_description": "Comece uma conversa digitando uma mensagem abaixo",
+      "message_placeholder": "Digite sua mensagem...",
+      "send_message": "Enviar mensagem",
+      "copy_message": "Copiar mensagem",
+      "edit_message": "Editar mensagem",
+      "delete_message": "Eliminar mensagem",
+      "regenerate_response": "Regenerar resposta",
+      "like_message": "Gostar",
+      "dislike_message": "Não gostar",
+      "show_raw_markdown": "Mostrar markdown bruto",
+      "show_markdown_view": "Mostrar vista formatada",
+      "select_model": "Selecionar modelo",
+      "temporary_chat": "Chat Temporário",
+      "expand_menu": "Expandir menu",
+      "collapse_menu": "Recolher menu",
+      "add_context": "Adicionar contexto",
+      "context_label": "Contexto:",
+      "remove_context": "Remover {{name}}",
+      "attach_file": "Anexar ficheiro",
+      "remove_file": "Remover ficheiro",
+      "click_to_edit_title": "Clique para editar título",
+      "model_label": "Modelo:",
+      "new_thread": "Novo Tópico",
+      "no_chats_yet": "Nenhum chat. Comece uma nova conversa!",
+      "no_matching_chats": "Nenhum chat correspondente encontrado",
+      "temp_indicator": "(Temp)",
+      "double_click_to_edit": "Duplo clique para editar",
+      "search_threads": "Procurar tópicos...",
+      "delete_thread": "Eliminar tópico",
+      "select_context": "Selecionar contexto"
+    }
+  },
+  "models": {
+    "gpt_5": "GPT-5",
+    "gpt_4_5_turbo": "GPT-4.5 Turbo",
+    "claude_4_5": "Claude 4.5",
+    "claude_4": "Claude 4"
+  },
+  "contexts": {
+    "documentation": "Documentação",
+    "code_repository": "Repositório de Código",
+    "api_reference": "Referência da API",
+    "design_system": "Sistema de Design",
+    "chat_history": "Histórico do Chat",
+    "user_preferences": "Preferências do Usuário"
+  }
+}
