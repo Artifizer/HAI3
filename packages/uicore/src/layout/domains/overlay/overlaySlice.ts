@@ -1,9 +1,13 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { LayoutDomains } from '../../layoutSlice';
+import { UICORE_ID } from '../../../core/constants';
+import { LAYOUT_DOMAINS } from '../../layoutSlice';
 
 /**
  * Overlay slice for managing overlay state
  */
+
+const DOMAIN_ID = LAYOUT_DOMAINS.OVERLAY;
+const SLICE_KEY = `${UICORE_ID}/${DOMAIN_ID}` as const;
 
 export interface OverlayState {
   visible: boolean;
@@ -14,7 +18,7 @@ const initialState: OverlayState = {
 };
 
 const overlaySlice = createSlice({
-  name: LayoutDomains.Overlay,
+  name: SLICE_KEY,
   initialState,
   reducers: {
     showOverlay: (state) => {
@@ -30,4 +34,5 @@ const overlaySlice = createSlice({
 });
 
 export const { showOverlay, hideOverlay, setOverlayVisible } = overlaySlice.actions;
+
 export default overlaySlice.reducer;

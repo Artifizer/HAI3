@@ -5,7 +5,7 @@
 
 // Redux store
 export { store, registerSlice } from './store';
-export type { RootState, AppDispatch } from './store';
+export type { RootState, AppDispatch, SliceObject } from './store';
 
 // App slice (application-level state)
 export * from './app/types';
@@ -39,7 +39,7 @@ export { ScreensetSelector, type ScreensetSelectorProps, type ScreensetOption } 
 // export { LanguageSelector, type LanguageSelectorProps } from './components/LanguageSelector';
 
 // Screenset management (Footer domain handles watching)
-export { screensetRegistry, type ScreensetConfig } from './screensets/screensetRegistry';
+export { screensetRegistry, ScreensetCategory, type ScreensetConfig, type ScreenLoader, type MenuScreenItem } from './screensets/screensetRegistry';
 
 // Theme management (Footer domain handles watching)
 export { themeRegistry } from './theme/themeRegistry';
@@ -64,12 +64,20 @@ export { setSelectedScreen } from './layout/layoutSlice'; // Direct action (Menu
 
 // API (SOLID architecture with domain-driven, self-registering services)
 export { apiRegistry, type ApiServicesConfig, type ApiServicesMap } from './api/apiRegistry';
-export { BaseApiService, type BaseApiServiceConfig } from './api/BaseApiService';
-export { AccountsApiService, ACCOUNTS_DOMAIN } from './api/accounts/AccountsApiService'; // Triggers self-registration
-export * from './api/accounts/api';
+export { BaseApiService } from './api/BaseApiService';
+export { ApiProtocol, type JsonValue, type JsonObject, type JsonPrimitive, type MockMap, type MockResponseFactory, type JsonCompatible } from './api/protocols/ApiProtocol';
+export { RestProtocol, type RestProtocolConfig } from './api/protocols/RestProtocol';
+export { SseProtocol, type SseProtocolConfig } from './api/protocols/SseProtocol';
+export type { ApiPlugin, RequestConfig } from './api/plugins/ApiPlugin';
+export { MockPlugin, type MockPluginConfig } from './api/plugins/MockPlugin';
+export type { ApiServiceConfig } from './api/ApiServiceConfig';
+export { AccountsApiService, ACCOUNTS_DOMAIN } from './api/services/accounts/AccountsApiService'; // Triggers self-registration
+export * from './api/services/accounts/api';
 
 // i18n (Internationalization system)
-export { i18nRegistry } from './i18n/i18nRegistry';
+// Use I18nRegistry class for all translation management
+export { i18nRegistry, I18nRegistry } from './i18n/i18nRegistry';
+export { useScreenTranslations } from './i18n/useScreenTranslations';
 export { useTranslation } from './i18n/useTranslation';
 export { TextLoader, type TextLoaderProps } from './i18n/TextLoader';
 export { changeLanguage } from './core/actions/i18nActions';

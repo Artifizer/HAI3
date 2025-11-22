@@ -3,8 +3,12 @@
  * Events related to theme changes
  */
 
+import { UICORE_ID } from '../../constants';
+
+const DOMAIN_ID = 'theme';
+
 export enum ThemeEvents {
-  Changed = 'theme/changed',
+  Changed = `${UICORE_ID}/${DOMAIN_ID}/changed`,
 }
 
 export interface ThemeChangedPayload {
@@ -16,5 +20,5 @@ export interface ThemeChangedPayload {
  * Uses string literal types as keys (event string values)
  */
 export interface ThemeEventPayloadMap {
-  'theme/changed': ThemeChangedPayload;
+  'uicore/theme/changed': ThemeChangedPayload;
 }

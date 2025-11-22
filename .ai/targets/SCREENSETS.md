@@ -1,61 +1,96 @@
 # Screensets Guidelines
 
 ## AI WORKFLOW (REQUIRED)
-1) Summarize 3–5 rules from this file before proposing changes.
-2) STOP if you add manual styling, custom state management, import slices directly, or hardcode screenset names.
+1) Summarize 3-5 rules from this file before proposing changes.
+2) STOP if you add manual styling, custom state management, direct slice imports, or hardcode screenset names.
 
 ## SCOPE
-- Applies to all screensets under `src/screensets/**`
-- Each screenset may define its own actions, events, slices, effects, and localization
+- Applies to all screensets under src/screensets/**.
+- Screensets may define local actions, events, slices, effects, API services, and localization.
 
 ## CRITICAL RULES
-- Manual styling is FORBIDDEN. Use `@hai3/uikit` components only.
-- Data flow must follow the event-driven pattern in `EVENTS.md`.
-- State management MUST follow the `@hai3/uicore` store pattern (Redux + Flux: actions -> events -> effects -> slices).
-- Screensets are isolated. Do not hardcode screenset names in shared code.
-- Registry imports only the screenset root file, never individual screens.
-- No direct slice imports. Use actions from `@hai3/uicore` or screenset-local actions.
+- Manual styling is FORBIDDEN; use @hai3/uikit components only.
+- Data flow must follow EVENTS.md.
+- State management must follow @hai3/uicore Redux+Flux pattern.
+- Screensets are isolated; no hardcoded screenset names in shared code.
+- Registry imports only the screenset root file.
+- No direct slice imports; use @hai3/uicore or local actions.
 
 ## STATE MANAGEMENT RULES
-- REQUIRED: Register slices dynamically via `registerSlice()` from `@hai3/uicore`.
-- REQUIRED: Folder structure includes `slices/`, `actions/`, `events/`, `effects/`.
-- REQUIRED: Add module augmentation for `RootState` in the screenset store files.
-- FORBIDDEN: Custom store classes, Zustand-like patterns, or manual subscribe/notify logic.
-- DETECT: `grep -rn "class.*Store\|subscribe.*listener" src/screensets/*/`
-- DETECT: `grep -rn "use.*Store.*useState\|Set<.*>" src/screensets/*/hooks/`
+- REQUIRED: Export slice object (not just reducer) as default from slice files.
+- REQUIRED: registerSlice(sliceObject, initEffects) passes slice object directly.
+- REQUIRED: Split screenset into domains (threads, messages, settings, etc).
+- REQUIRED: Domain-specific folders: slices/, actions/, events/, effects/.
+- REQUIRED: Events split into domain files with local DOMAIN_ID.
+- REQUIRED: Effects split into domain files; each slice registers its own effects.
+- FORBIDDEN: Object.defineProperty on reducers.
+- FORBIDDEN: Exporting only reducer from slice files.
+- FORBIDDEN: Coordinator effects files.
+- FORBIDDEN: Monolithic slice/events/effects files.
+- FORBIDDEN: Barrel exports in events/ or effects/.
+- REQUIRED: RootState augmentation in screenset store files.
+- FORBIDDEN: Zustand-style stores, custom stores, manual subscribe/notify.
+- DETECT: grep -rn "class.*Store\\|subscribe.*listener" src/screensets/*/
+- DETECT: grep -rn "events/index\\|effects/index" src/screensets
+- DETECT: grep -rn "chatEffects\\|demoEffects" src/screensets
+- DETECT: grep -rn "Object\\.defineProperty.*reducer" src/screensets
+
+## DRAFT ENTITY PATTERN
+- REQUIRED: Create draft entities locally before backend save.
+- REQUIRED: Use isDraft: true and temporary IDs.
+- REQUIRED: Replace draft with persisted entity from backend.
+- REQUIRED: Entity data must not contain i18n strings; UI handles translation.
+- FORBIDDEN: Hardcoded i18n values in entity data.
+- DETECT: grep -rn "t(.*new_.*)" src/screensets/*/
 
 ## LOCALIZATION RULES
-- Localization folder: `i18n/{lang}.json`.
-- Register loader: `i18nRegistry.registerLoader('screenset.${ID}', loader)`.
-- Loader type: `Record<Language, () => Promise<TranslationModule>>`.
-- All UI text uses `t('screenset.id:key')`. Hardcoded strings are FORBIDDEN.
-- DETECT: `grep -R "['\"] [A-Za-z].* " src/screensets`
+- REQUIRED: Two-tier system: screenset-level and screen-level translations.
+- REQUIRED: Screenset-level: localization: TranslationLoader in config.
+- REQUIRED: Screen-level: useScreenTranslations(screensetId, screenId, loader).
+- REQUIRED: Use I18nRegistry.createLoader with full language map.
+- REQUIRED: Screenset namespace: "screenset.id:key".
+- REQUIRED: Screen namespace: "screen.screenset.screen:key".
+- REQUIRED: Place translations in local i18n folders for screenset and screen.
+- REQUIRED: Wrap translated text with <TextLoader>.
+- FORBIDDEN: Hardcoded strings or partial language sets.
+- DETECT: grep -R "['\"] [A-Za-z].* " src/screensets
+
+## API SERVICE RULES
+- REQUIRED: Screenset-local API services in src/screensets/*/api/.
+- REQUIRED: Unique domain constant per screenset.
+- REQUIRED: Import API service in screenset root for registration.
+- REQUIRED: Actions import from local api folder.
+- FORBIDDEN: Centralized src/api/ directory.
+- FORBIDDEN: Sharing API services between screensets.
+- DETECT: grep -rn "@/api/services" src/
 
 ## ICON RULES
-- Define and register icons inside the screenset file.
-- Export icon IDs as constants.
-- Do not add screenset icons to the `UiKitIcon` enum.
+- Screenset icons defined and registered in screenset root.
+- Icon IDs exported as constants.
+- Screenset icons do not go into UiKitIcon enum.
 
 ## SCREENSET UI KIT RULES
-- Screenset-local UI Kit components must follow the same rules as components in `UIKIT.md`.
+- Local components under src/screensets/*/uikit/ must follow UIKIT.md.
 
 ## UI KIT DECISION TREE
-1) Use existing `@hai3/uikit` component.
-2) If missing, generate via `npx shadcn add`.
-3) If composite needed, add to `@hai3/uikit/composite`.
-4) Only screenset-specific composites may live locally in `src/screensets/*/uikit/`.
-5) Screenset UI Kit components are package-ready and must not depend on UI Core.
-6) Manual styling is never allowed.
+1) Use existing @hai3/uikit component.
+2) If missing, generate via "npx shadcn add".
+3) Composite belongs in @hai3/uikit/composite.
+4) Screenset-specific components stay local.
+5) Manual styling is never allowed.
 
 ## PRE-DIFF CHECKLIST
-- [ ] No manual Tailwind/className styling.
-- [ ] No custom state management.
-- [ ] Slice registered via `registerSlice()`.
-- [ ] Module augmentation present in store files.
+- [ ] No manual styling.
+- [ ] No custom store patterns.
+- [ ] Slices registered with registerSlice.
+- [ ] RootState augmented in screenset store.
 - [ ] No direct slice imports.
-- [ ] Registry imports the screenset root only.
 - [ ] Icons exported and registered.
-- [ ] i18n loader registered under `screenset.${ID}`.
-- [ ] All user-facing strings use `t()`.
-- [ ] Screenset UI Kit components have no `@hai3/uicore` imports or hooks.
-- [ ] Data flow rules from `EVENTS.md` are followed.
+- [ ] Screenset-local API service present, registered, and isolated.
+- [ ] All text uses t().
+- [ ] Screenset and screen loaders use I18nRegistry.createLoader.
+- [ ] useScreenTranslations used for screen-level translations.
+- [ ] Namespaces follow screenset.id and screen.screenset.screen.
+- [ ] No barrel exports in events/ or effects/.
+- [ ] Events and effects split by domain.
+- [ ] Data flow rules from EVENTS.md are followed.

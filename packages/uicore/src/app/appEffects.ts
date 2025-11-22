@@ -9,46 +9,49 @@
 
 import type { Store } from '@reduxjs/toolkit';
 import { eventBus } from '../core/events/eventBus';
-import {
-  UserEvents,
-  ApiEvents,
-  I18nEvents,
-} from '../core/events/eventTypes';
+import { UserEvents } from '../core/events/eventTypes/userEvents';
+import { ApiEvents } from '../core/events/eventTypes/apiEvents';
+import { I18nEvents } from '../core/events/eventTypes/i18nEvents';
 import { setUser, setError, setLoading, setUseMockApi, setLanguage, setTranslationsReady } from './appSlice';
-import { apiRegistry } from '../api/apiRegistry';
 import { i18nRegistry } from '../i18n/i18nRegistry';
+import { apiRegistry } from '../api/apiRegistry';
 
 /**
  * Initialize app effects
  * Call this once during app setup
  */
 export function initAppEffects(store: Store): void {
+  // Note: Mock mode is initialized in apiRegistry.initialize() in main.tsx
+  // This ensures services are instantiated before plugins are registered
+
   // User fetch started - set loading state
-  eventBus.on(UserEvents.UserFetchStarted, () => {
+  eventBus.on(UserEvents.FetchStarted, () => {
     store.dispatch(setLoading(true));
   });
-  
-  // User fetch succeeded - update user and clear loading
-  eventBus.on(UserEvents.UserFetched, ({ user }) => {
+
+  // User fetch succeeded - update user and clear loading/error
+  eventBus.on(UserEvents.Fetched, ({ user }) => {
     store.dispatch(setUser(user));
+    store.dispatch(setError(null));
     store.dispatch(setLoading(false));
   });
 
   // User fetch failed - set error and clear loading
-  eventBus.on(UserEvents.UserFetchFailed, ({ error }) => {
+  eventBus.on(UserEvents.FetchFailed, ({ error }) => {
     store.dispatch(setError(error.message));
     store.dispatch(setLoading(false));
   });
 
   // API configuration events
-  eventBus.on(ApiEvents.ApiModeChanged, ({ useMockApi }) => {
+  eventBus.on(ApiEvents.ModeChanged, ({ useMockApi }) => {
     store.dispatch(setUseMockApi(useMockApi));
+    // Reinitialize all API services with new mock mode
     apiRegistry.setMockMode(useMockApi);
   });
 
   // i18n events
   eventBus.on(I18nEvents.LanguageChanged, async ({ language }) => {
-    const state = store.getState().app;
+    const state = store.getState().uicore.app;
     const currentLanguage = state.language;
     const translationsReady = state.translationsReady;
     

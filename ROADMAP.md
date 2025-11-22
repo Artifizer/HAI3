@@ -19,7 +19,10 @@
 - [ ] Tests
 - [ ] Electron build
 - [ ] Develop HAI3-Samples in separate repository
-- [ ] Implement screens lazy loading
+- [x] ~~Implement screens lazy loading~~
+- [x] ~~Implement per-screen i18n dictionaries lazy loading~~
+- [x] ~~Support SSE protocol in api services~~
+- [x] ~~Implement devtools as a separate dev dependency~~
 
 # Checks in arch:check script (called in CI)
 - [x] ~~Circular dependencies~~

@@ -8,7 +8,7 @@
 
 import type { Store } from '@reduxjs/toolkit';
 import { eventBus } from '../../../core/events/eventBus';
-import { MenuEvents } from '../../../core/events/eventTypes';
+import { MenuEvents } from '../../../core/events/eventTypes/menuEvents';
 import { setMenuItems, setMenuCollapsed } from './menuSlice';
 
 /**
@@ -23,7 +23,7 @@ export function initMenuEffects(store: Store): void {
 
   // When menu toggle is triggered, toggle collapsed state
   eventBus.on(MenuEvents.Toggled, () => {
-    const currentCollapsed = store.getState().menu.collapsed;
+    const currentCollapsed = store.getState().uicore.menu.collapsed;
     store.dispatch(setMenuCollapsed(!currentCollapsed));
   });
 }

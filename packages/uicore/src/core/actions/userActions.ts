@@ -5,10 +5,10 @@
 
 import type { AppDispatch } from '../../store';
 import { eventBus } from '../events/eventBus';
-import { UserEvents } from '../events/eventTypes';
+import { UserEvents } from '../events/eventTypes/userEvents';
 import { apiRegistry } from '../../api/apiRegistry';
-import { ACCOUNTS_DOMAIN } from '../../api/accounts/AccountsApiService';
-import type { ApiError } from '../../api/accounts/api';
+import { ACCOUNTS_DOMAIN } from '../../api/services/accounts/AccountsApiService';
+import type { ApiError } from '../../api/services/accounts/api';
 import { changeLanguage } from './i18nActions';
 
 /**
@@ -22,29 +22,36 @@ import { changeLanguage } from './i18nActions';
  */
 export const fetchCurrentUser = () => (_dispatch: AppDispatch): void => {
   // Emit start event - effect will set loading
-  eventBus.emit(UserEvents.UserFetchStarted);
-  
+  eventBus.emit(UserEvents.FetchStarted);
+
   const accountsService = apiRegistry.getService(ACCOUNTS_DOMAIN);
-  
+
   // Fire and forget - action returns void immediately
   // Results handled via events
   accountsService.getCurrentUser()
     .then(response => {
+      // Validate response structure
+      if (!response || !response.user) {
+        throw new Error('Invalid response: user data missing');
+      }
+
       // Emit success event
-      eventBus.emit(UserEvents.UserFetched, {
+      eventBus.emit(UserEvents.Fetched, {
         user: response.user,
       });
-      
+
       // Set language from user preference
       // Action -> Action is allowed (actions can call other actions)
       // Effect -> Action is NOT allowed (would be circular)
       // Action is pure function - effect will check if language changed
-      changeLanguage(response.user.language);
+      if (response.user.language) {
+        changeLanguage(response.user.language);
+      }
     })
     .catch(error => {
       // Emit failure event
       const apiError = error as ApiError;
-      eventBus.emit(UserEvents.UserFetchFailed, {
+      eventBus.emit(UserEvents.FetchFailed, {
         error: {
           code: apiError.code || 'UNKNOWN_ERROR',
           message: apiError.message || 'Failed to fetch user',

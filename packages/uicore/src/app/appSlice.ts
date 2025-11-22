@@ -1,6 +1,7 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { ApiUser } from '../api/accounts/api';
+import type { ApiUser } from '../api/services/accounts/api';
 import { Language } from '../i18n/types';
+import { UICORE_ID } from '../core/constants';
 
 /**
  * App Slice - Application-level state
@@ -8,13 +9,15 @@ import { Language } from '../i18n/types';
  * Updated by appEffects based on events
  */
 
-const APP_SLICE_NAME = 'app';
+const DOMAIN_ID = 'app';
+const SLICE_KEY = `${UICORE_ID}/${DOMAIN_ID}` as const;
 
 export interface AppState {
   user: ApiUser | null;
   tenant: unknown | null; // TODO: Define Tenant type in accounts/api.ts
   language: Language | null; // User's language preference (null until determined)
   translationsReady: boolean; // Whether current language translations are loaded
+  screenTranslationsVersion: number; // Incremented when screen translations load (triggers re-render)
   loading: boolean;
   error: string | null;
   useMockApi: boolean;
@@ -25,13 +28,14 @@ const initialState: AppState = {
   tenant: null,
   language: null, // No default - wait for user preference/browser detection
   translationsReady: false, // Set to true after translations load
+  screenTranslationsVersion: 0, // Incremented when screen translations load
   loading: false,
   error: null,
   useMockApi: true, // Default to mock API
 };
 
 const appSlice = createSlice({
-  name: APP_SLICE_NAME,
+  name: SLICE_KEY,
   initialState,
   reducers: {
     setUser: (state, action: PayloadAction<ApiUser | null>) => {
@@ -58,9 +62,12 @@ const appSlice = createSlice({
     setTranslationsReady: (state, action: PayloadAction<boolean>) => {
       state.translationsReady = action.payload;
     },
+    incrementScreenTranslationsVersion: (state) => {
+      state.screenTranslationsVersion += 1;
+    },
   },
 });
 
-export const { setUser, setTenant, setLoading, setError, clearError, setUseMockApi, setLanguage, setTranslationsReady } = appSlice.actions;
+export const { setUser, setTenant, setLoading, setError, clearError, setUseMockApi, setLanguage, setTranslationsReady, incrementScreenTranslationsVersion } = appSlice.actions;
 
 export default appSlice.reducer;

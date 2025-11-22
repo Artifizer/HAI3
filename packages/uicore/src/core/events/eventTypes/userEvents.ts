@@ -3,12 +3,15 @@
  * Events related to user data and authentication
  */
 
-import type { ApiUser } from '../../../api/accounts/api';
+import type { ApiUser } from '../../../api/services/accounts/api';
+import { UICORE_ID } from '../../constants';
+
+const DOMAIN_ID = 'user';
 
 export enum UserEvents {
-  UserFetchStarted = 'user/userFetchStarted',
-  UserFetched = 'user/userFetched',
-  UserFetchFailed = 'user/userFetchFailed',
+  FetchStarted = `${UICORE_ID}/${DOMAIN_ID}/fetchStarted`,
+  Fetched = `${UICORE_ID}/${DOMAIN_ID}/fetched`,
+  FetchFailed = `${UICORE_ID}/${DOMAIN_ID}/fetchFailed`,
 }
 
 export interface UserFetchedPayload {
@@ -28,7 +31,7 @@ export interface UserFetchFailedPayload {
  * Ensures type safety when emitting/subscribing to events
  */
 export interface UserEventPayloadMap {
-  'user/userFetchStarted': void; // No payload needed
-  'user/userFetched': UserFetchedPayload;
-  'user/userFetchFailed': UserFetchFailedPayload;
+  'uicore/user/fetchStarted': void; // No payload needed
+  'uicore/user/fetched': UserFetchedPayload;
+  'uicore/user/fetchFailed': UserFetchFailedPayload;
 }
