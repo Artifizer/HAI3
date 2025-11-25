@@ -43,7 +43,7 @@ npm run clean:deps        # Remove node_modules + reinstall
 npm run clean:build       # Clean + build from scratch
 ```
 
-**Build Order:** uikit-contracts → uikit → uicore → app (`npm run build:packages` handles this)
+**Build Order:** uikit-contracts → uikit → uicore → studio → cli → app (`npm run build:packages` handles this)
 
 ## Architecture Overview
 
@@ -52,7 +52,7 @@ npm run clean:build       # Clean + build from scratch
 ```
 App (src/) → screensets, themes, icons
     ↓
-uicore (layout, Redux, events) + uikit (React components) + devtools (dev only)
+uicore (layout, Redux, events) + uikit (React components) + studio (dev only)
     ↓
 uikit-contracts (interfaces only)
 ```
@@ -61,7 +61,7 @@ uikit-contracts (interfaces only)
 - **uikit-contracts**: Pure TypeScript interfaces - no implementation
 - **uikit**: React components - NO dependency on uicore
 - **uicore**: Layout, Redux store, event bus, registries - depends ONLY on contracts
-- **devtools**: Dev panel (auto-loaded in dev, tree-shaken in prod)
+- **studio**: Dev panel (auto-loaded in dev, tree-shaken in prod)
 - **App**: Registers uikit implementations with uicore at runtime
 
 ### Event-Driven Flux Pattern
@@ -254,14 +254,14 @@ declare module '@hai3/uicore' {
 
 ### Before Making Changes
 
-1. **CRITICAL: Verify MCP connection** - If WebSocket breaks, STOP and fix it first (see `.ai/MCP_TROUBLESHOOTING.md`)
-2. **CRITICAL: Use Chrome DevTools MCP native tools** - ALWAYS use appropriate tool:
+1. **CRITICAL: Read `.ai/GUIDELINES.md` FIRST** - Route to correct target file before ANY modification. For `.ai/` files, MUST read `.ai/targets/AI.md` first.
+2. **CRITICAL: Verify MCP connection** - If WebSocket breaks, STOP and fix it first (see `.ai/MCP_TROUBLESHOOTING.md`)
+3. **CRITICAL: Use Chrome Studio MCP native tools** - ALWAYS use appropriate tool:
    - Navigation: `navigate_page`, `wait_for`
    - Page info: `take_snapshot`, `take_screenshot`, `list_console_messages`, `list_network_requests`
    - Interaction: `click`, `fill`, `fill_form`, `hover`, `press_key`
    - Tabs: `list_pages`, `select_page`, `new_page`, `close_page`
    - **ONLY use `evaluate_script` as last resort when NO native tool works**
-3. Read `.ai/GUIDELINES.md` for routing table
 4. Run `npm run arch:check` (MUST pass before commits)
 5. Follow event-driven flow (no direct dispatch)
 
@@ -302,8 +302,55 @@ apiRegistry.registerMocks(ACCOUNTS_DOMAIN, accountsMockMap);
 
 **Key Principles:** Framework services in uicore, mocks in screensets, intentional duplication for independence.
 
+## HAI3 CLI
+
+The CLI provides project scaffolding and screenset management tools.
+
+### Installation
+```bash
+npm install -g @hai3/cli  # Global installation
+```
+
+### Commands
+```bash
+# Create new project
+hai3 create <project-name>              # Interactive project creation
+hai3 create my-app --uikit=hai3 --studio  # Non-interactive
+
+# Update CLI and packages
+hai3 update                             # Inside project: updates CLI + packages
+                                        # Outside: updates CLI only
+
+# Screenset management
+hai3 screenset create <name>            # Create new screenset
+hai3 screenset create billing --category=production
+hai3 screenset copy <source> <target>   # Copy with ID transformation
+hai3 screenset copy chat chatCopy --category=mockups
+```
+
+### Programmatic API (for AI agents)
+```typescript
+import { executeCommand, commands } from '@hai3/cli';
+
+const result = await executeCommand(
+  commands.screensetCreate,
+  { name: 'billing', category: 'drafts' },
+  { interactive: false }
+);
+
+if (result.success) {
+  console.log('Created:', result.data.files);
+}
+```
+
 ## Creating a New Screenset
 
+### Option 1: Using CLI (Recommended)
+```bash
+hai3 screenset create myScreenset
+```
+
+### Option 2: Manual Creation
 1. Create directory: `mkdir -p src/screensets/my-screenset/screens/home`
 2. Create `ids.ts`: `export const MY_SCREENSET_ID = 'myScreenset';`
 3. Create screenset-level i18n files: `src/screensets/my-screenset/i18n/en.json`, etc.
@@ -376,7 +423,7 @@ npm run dev           # 5. Test in browser + console
 6. **Naming violations**: Follow template literal pattern for events/icons/IDs
 7. **Hardcoded state keys**: Use screenset ID constant
 8. **Monolithic events/effects**: Split into domain-specific files with `DOMAIN_ID` constant
-9. **MCP testing**: NEVER skip Chrome DevTools MCP testing, STOP if WebSocket closes
+9. **MCP testing**: NEVER skip Chrome Studio MCP testing, STOP if WebSocket closes
 
 ## AI Development Workflow
 
@@ -385,7 +432,7 @@ npm run dev           # 5. Test in browser + console
 3. Follow event-driven patterns
 4. Use registries for extensibility
 5. Validate with `npm run arch:check`
-6. **CRITICAL: Test via Chrome DevTools MCP immediately** (see `.ai/MCP_TROUBLESHOOTING.md`)
+6. **CRITICAL: Test via Chrome Studio MCP immediately** (see `.ai/MCP_TROUBLESHOOTING.md`)
 7. Keep screensets as vertical slices
 
 ## Documentation
@@ -407,7 +454,7 @@ React 18, TypeScript 5, Vite 6, Redux Toolkit, Lodash, Tailwind CSS 3, shadcn/ui
 
 ```
 HAI3/
-├── packages/          # uikit-contracts, uikit, uicore, devtools
+├── packages/          # uikit-contracts, uikit, uicore, studio, cli
 ├── src/               # App code
 │   ├── screensets/    # Vertical slices
 │   ├── themes/        # Theme registry
